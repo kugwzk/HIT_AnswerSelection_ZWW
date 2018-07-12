@@ -9,28 +9,32 @@ def read_data(file_name):
     # indices, sentences, labels
     # indices is positions of questions
     num = 0
-    indices = [0]
+    indices = list()
     sentences = list()
     labels = list()
     with open(file_name, "r", encoding="utf-8") as fin:
         last_question = None
         for line in fin.readlines():
-            s = line.strip().split()
+            s = line.strip().split("\t")
+            # s = [i.strip() for i in s]
             if len(s) != 0:
                 question = s[0]
                 answer = s[1]
-                label = None if len(s) == 2 else s[2]
-                if last_question is not None and question != last_question:
+                label = None if len(s) == 2 else eval(s[2])
+                if last_question is None or question != last_question:
                     indices.append(num)
                     sentences.append(question)
                     labels.append(-1)
-                    last_question = question
+                    num += 1
+                last_question = question
                 sentences.append(answer)
                 labels.append(label)
                 num += 1
             else:
                 indices.append(num)
                 break
+        if indices[-1] != num:
+            indices.append(num)
     return indices, sentences, labels
 
 
@@ -38,7 +42,7 @@ def get_segment(data_set):
     indices, sentences, labels = data_set
     sentences_seg = list()
     for sen in sentences:
-        sen = jieba.cut(sen)
+        sen = list(jieba.cut(sen))
         sentences_seg.append(sen)
     return indices, sentences_seg, labels
 
@@ -81,3 +85,9 @@ def write_predictions(data_set, labels, file_name):
                 answer = sentences[j]
                 label = labels[j]
                 fout.write(question + "\t" + answer + "\t" + str(label) + "\n")
+
+
+def write_scores(scores, file_name):
+    with open(file_name, "w", encoding="utf-8") as fout:
+        for i in scores:
+            fout.write(str(i) + '\n')
