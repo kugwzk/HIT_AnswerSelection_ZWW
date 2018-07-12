@@ -1,5 +1,8 @@
 import jieba
 
+UNK = "$UNK$"
+PAD = "$PAD$"
+
 
 def read_data(file_name):
     # data_set format:
@@ -45,3 +48,25 @@ def get_segment(data_set):
             answers_of_1q_seg.append((question, answer, label))
         data_set_seg.append(answers_of_1q_seg)
     return data_set_seg
+
+
+def build_dictionary(data_set):
+    vocabulary = set()
+    for answer_of_1q in data_set:
+        for qa_pair in answer_of_1q:
+            vocabulary.update(qa_pair[0])
+            vocabulary.update(qa_pair[1])
+    vocabulary.add(PAD)
+    vocabulary.add(UNK)
+    vocabulary = list(vocabulary)
+    word_indices = dict(zip(vocabulary, range(len(vocabulary))))
+    return word_indices
+
+
+def get_word_processing_function(word_indices):
+    def f(word):
+        if word in word_indices.keys():
+            return word_indices[word]
+        return word_indices[UNK]
+
+    return f
