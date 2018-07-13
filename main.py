@@ -8,7 +8,7 @@ if __name__ == "__main__":
     train_set = read_data(config.train_set_file_name)
     dev_set = read_data(config.dev_set_file_name)
 
-    model = BowModel()
+    model = BowModel(config)
     labels, scores = model.test(dev_set)
     write_predictions(dev_set, labels, config.result_file_name)
     write_scores(scores, config.result_file_name)

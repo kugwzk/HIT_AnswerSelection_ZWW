@@ -4,28 +4,53 @@ from utils.data_utils import get_segment
 
 
 class BowModel:
-    def __init__(self):
+    def __init__(self, config):
+        self.config = config
+
+    def save(self):
+        pass
+
+    def restore(self):
         pass
 
     def train(self, data_set):
         pass
 
     def test(self, data_set):
-        indices, sentences, _ = get_segment(data_set)
+        indices, sentences, _ = get_segment(data_set, self.config.stop_words_file_name)
         dictionary = gensim.corpora.Dictionary(sentences)
         sentences = [dictionary.doc2bow(sen) for sen in sentences]
         tf_idf = gensim.models.TfidfModel(sentences)
         sentences = tf_idf[sentences]
-        lsi_model = gensim.models.LsiModel(sentences, id2word=dictionary, num_topics=1000)
-        sentences = lsi_model[sentences]
-        index = gensim.similarities.MatrixSimilarity(sentences)
+        lsi_model_500 = gensim.models.LsiModel(sentences, id2word=dictionary, num_topics=500)
+        lsi_model_1000 = gensim.models.LsiModel(sentences, id2word=dictionary, num_topics=1000)
+        # lda_model = gensim.models.LdaModel(sentences, id2word=dictionary, num_topics=1000)
+
         labels = np.zeros(len(sentences))
         scores = list()
         for i in range(len(indices) - 1):
             que = sentences[indices[i]]
             al_id = indices[i] + 1
             ar_id = indices[i + 1]
-            similarities_of_1q = index[que][al_id: ar_id]
+
+            # tf-idf similarity
+            index_tf_idf = gensim.similarities.MatrixSimilarity(sentences[(al_id - 1):ar_id])
+            similarities_of_1q = index_tf_idf[que][1: ar_id - al_id + 1]
+
+            # lsi similarity
+            sens_lsi = lsi_model_500[sentences[(al_id - 1):ar_id]]
+            index_lsi = gensim.similarities.MatrixSimilarity(sens_lsi[0:ar_id - al_id + 1])
+            similarities_of_1q += index_lsi[sens_lsi[0]][1: ar_id - al_id + 1]
+
+            sens_lsi = lsi_model_1000[sentences[(al_id - 1):ar_id]]
+            index_lsi = gensim.similarities.MatrixSimilarity(sens_lsi[0:ar_id - al_id + 1])
+            similarities_of_1q += index_lsi[sens_lsi[0]][1: ar_id - al_id + 1]
+
+            # lda similarity
+            # sens_lda = lda_model[sentences[(al_id - 1):ar_id]]
+            # index_lda = gensim.similarities.MatrixSimilarity(sens_lda[0:ar_id - al_id + 1])
+            # similarities_of_1q += index_lda[sens_lda[0]][1: ar_id - al_id + 1]
+
             similarities_of_1q /= np.sum(similarities_of_1q)
             scores.extend(similarities_of_1q)
             ans_pos = np.argmax(similarities_of_1q) + (indices[i] + 1)

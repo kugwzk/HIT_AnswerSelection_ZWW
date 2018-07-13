@@ -38,11 +38,21 @@ def read_data(file_name):
     return indices, sentences, labels
 
 
-def get_segment(data_set):
+def get_segment(data_set, stop_words_file_name):
+    # load stop words
+    stop_words_set = set()
+    with open(stop_words_file_name, "r", encoding="utf-8") as fin:
+        for line in fin.readlines():
+            word = line.strip()
+            if len(word) != 0:
+                stop_words_set.add(word)
+
+    # get word segmentation
     indices, sentences, labels = data_set
     sentences_seg = list()
     for sen in sentences:
         sen = list(jieba.cut(sen))
+        sen = [sen[i] for i in range(len(sen)) if sen[i] not in stop_words_set]
         sentences_seg.append(sen)
     return indices, sentences_seg, labels
 
