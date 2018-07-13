@@ -17,7 +17,7 @@ class BowModel:
         pass
 
     def test(self, data_set):
-        indices, sentences, _ = get_segment(data_set, self.config.stop_words_file_name)
+        indices, sentences, _ = data_set
         dictionary = gensim.corpora.Dictionary(sentences)
         sentences = [dictionary.doc2bow(sen) for sen in sentences]
         tf_idf = gensim.models.TfidfModel(sentences)

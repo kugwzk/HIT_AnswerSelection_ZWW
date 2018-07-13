@@ -57,16 +57,32 @@ def get_segment(data_set, stop_words_file_name):
     return indices, sentences_seg, labels
 
 
+def remove_low_words(data_set, dictionary):
+    indices, sentences, labels = data_set
+    dictionary = dictionary.keys()
+    sentences_ret = list()
+    for sen in sentences:
+        sen = [word for word in sen if word in dictionary]
+        sentences_ret.append(sen)
+    return indices, sentences_ret, labels
+
+
 def get_processed(data_set):
     indices, sentences, labels = data_set
     pass
 
 
-def build_dictionary(data_set):
-    vocabulary = set()
-    indices, sentences, labels = data_set
-    for sen in sentences:
-        vocabulary.update(sen)
+def build_dictionary(data_sets, low_frequency):
+    words_count = dict()
+    for data_set in data_sets:
+        indices, sentences, labels = data_set
+        for sen in sentences:
+            for word in sen:
+                if word in words_count.keys():
+                    words_count[word] += 1
+                else:
+                    words_count[word] = 1
+    vocabulary = set([word for word in words_count.keys() if words_count[word] > low_frequency])
     vocabulary.add(PAD)
     vocabulary.add(UNK)
     vocabulary = list(vocabulary)
@@ -94,7 +110,7 @@ def write_predictions(data_set, labels, file_name):
             for j in range(al_id, ar_id):
                 answer = sentences[j]
                 label = labels[j]
-                fout.write(question + "\t" + answer + "\t" + str(label) + "\n")
+                fout.write("".join(question) + "\t" + "".join(answer) + "\t" + str(label) + "\n")
 
 
 def write_scores(scores, file_name):
