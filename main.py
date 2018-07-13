@@ -15,7 +15,6 @@ if __name__ == "__main__":
 
     # remove words with low frequency
     dictionary = build_dictionary([train_set, dev_set], config.low_frequency)
-    print(len(dictionary.keys()))
     train_set = remove_low_words(train_set, dictionary)
     dev_set = remove_low_words(dev_set, dictionary)
 
