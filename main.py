@@ -21,7 +21,7 @@ if __name__ == "__main__":
     dev_set = remove_low_words(dev_set, dictionary)
 
     # get predictions
-    ensemble_model = Ensemble(dev_set, [BowModel(config), BocModel(config)])
+    ensemble_model = Ensemble(config, [BowModel(config), BocModel(config)])
     scores = ensemble_model.test(dev_set)
 
     # write predictions
