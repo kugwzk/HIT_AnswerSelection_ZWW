@@ -1,6 +1,8 @@
 from config import Config
 from utils.data_utils import read_data, write_scores, write_predictions, get_segment, build_dictionary, remove_low_words
 from models.BowModel import BowModel
+from models.BocModel import BocModel
+from models.Ensemble import Ensemble
 
 if __name__ == "__main__":
     config = Config()
@@ -19,8 +21,8 @@ if __name__ == "__main__":
     dev_set = remove_low_words(dev_set, dictionary)
 
     # get predictions
-    model = BowModel(config)
-    labels, scores = model.test(dev_set)
+    ensemble_model = Ensemble(dev_set, [BowModel(config), BocModel(config)])
+    scores = ensemble_model.test(dev_set)
 
     # write predictions
     # write_predictions(dev_set, labels, config.result_file_name)
