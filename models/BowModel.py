@@ -49,6 +49,8 @@ class BowModel:
             # index_lda = gensim.similarities.MatrixSimilarity(sens_lda[0:ar_id - al_id + 1])
             # similarities_of_1q += index_lda[sens_lda[0]][1: ar_id - al_id + 1]
 
+            if np.sum(similarities_of_1q) == 0:
+                similarities_of_1q[0] = 1.0
             similarities_of_1q /= np.sum(similarities_of_1q)
             scores.extend(similarities_of_1q)
         return scores
