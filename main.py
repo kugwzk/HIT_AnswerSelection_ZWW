@@ -12,11 +12,11 @@ if __name__ == "__main__":
     dev_set = read_data(config.dev_set_file_name)
 
     # segmentation
-    train_set = get_segment(train_set, config.stop_words_file_name)
-    dev_set = get_segment(dev_set, config.stop_words_file_name)
+    train_set = get_segment(train_set)
+    dev_set = get_segment(dev_set)
 
     # remove words with low frequency
-    dictionary = build_dictionary([train_set, dev_set], config.low_frequency)
+    dictionary = build_dictionary([train_set, dev_set], config.low_frequency, config.high_frequency)
     train_set = remove_low_words(train_set, dictionary)
     dev_set = remove_low_words(dev_set, dictionary)
 

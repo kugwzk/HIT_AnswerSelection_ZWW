@@ -6,4 +6,5 @@ class Config:
         self.stop_words_file_name = self.data_dir + "stopwords.data"
         self.result_dir = "results/"
         self.result_file_name = self.result_dir + "result.data"
-        self.low_frequency = 1
+        self.low_frequency = 3
+        self.high_frequency = 2000

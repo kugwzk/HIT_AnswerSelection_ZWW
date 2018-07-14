@@ -38,21 +38,12 @@ def read_data(file_name):
     return indices, sentences, labels
 
 
-def get_segment(data_set, stop_words_file_name):
-    # load stop words
-    stop_words_set = set()
-    with open(stop_words_file_name, "r", encoding="utf-8") as fin:
-        for line in fin.readlines():
-            word = line.strip()
-            if len(word) != 0:
-                stop_words_set.add(word)
-
+def get_segment(data_set):
     # get word segmentation
     indices, sentences, labels = data_set
     sentences_seg = list()
     for sen in sentences:
         sen = list(jieba.cut(sen))
-        sen = [sen[i] for i in range(len(sen)) if sen[i] not in stop_words_set]
         sentences_seg.append(sen)
     return indices, sentences_seg, labels
 
@@ -72,7 +63,7 @@ def get_processed(data_set):
     pass
 
 
-def build_dictionary(data_sets, low_frequency):
+def build_dictionary(data_sets, low_frequency, high_frequency):
     words_count = dict()
     for data_set in data_sets:
         indices, sentences, labels = data_set
@@ -82,7 +73,8 @@ def build_dictionary(data_sets, low_frequency):
                     words_count[word] += 1
                 else:
                     words_count[word] = 1
-    vocabulary = set([word for word in words_count.keys() if words_count[word] > low_frequency])
+    vocabulary = set([word for word in words_count.keys() if low_frequency < words_count[word] < high_frequency])
+
     vocabulary.add(PAD)
     vocabulary.add(UNK)
     vocabulary = list(vocabulary)
