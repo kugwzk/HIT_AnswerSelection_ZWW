@@ -2,6 +2,7 @@ import jieba
 
 UNK = "$UNK$"
 PAD = "$PAD$"
+NUM = "$NUM$"
 
 
 def read_data(file_name):
@@ -39,11 +40,19 @@ def read_data(file_name):
 
 
 def get_segment(data_set):
+    def is_num(str):
+        try:
+            float(str)
+            return True
+        except ValueError:
+            return False
+
     # get word segmentation
     indices, sentences, labels = data_set
     sentences_seg = list()
     for sen in sentences:
         sen = list(jieba.cut(sen))
+        sen = [NUM if is_num(word) else word for word in sen]
         sentences_seg.append(sen)
     return indices, sentences_seg, labels
 
